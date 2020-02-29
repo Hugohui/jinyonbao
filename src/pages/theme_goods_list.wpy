@@ -1,0 +1,178 @@
+<template>
+  <view class="theme-container">
+    <view class="goods-items" v-if="currentTabIndex == 0">
+      <repeat for="{{goods_info_list}}" key="index">
+        <view class="item" v-for="item in 5" @tap="toDetail" data-goodsId="{{item.goods_id}}">
+          <view class="icon">
+            <image src="{{item.goods_image_url}}"/>
+          </view>
+          <view class="info">
+            <view class="top">
+              <view class="goods-name">{{item.goods_name}}</view>
+            </view>
+            <view class="bottom">
+              <view class="goods-current-price">
+                <view><span>¥{{item.min_normal_price / 100}}</span>（单买价）</view>
+                <view><span>¥{{item.min_group_price / 100}}</span>（拼团价）</view>
+              </view>
+              <view class="promote" wx:if="{{item.coupon_discount > 0}}">
+                <view>
+                  <span>优惠券¥{{item.coupon_discount / 100}}</span>
+                </view>
+                <view>
+                  <span>佣金¥{{filter.valueToFixed((item.min_group_price*item.promotion_rate) / 300000,2)}}</span>
+                </view>
+              </view>
+              <view class="promote pd-top" wx:else>
+                <span>佣金¥{{filter.valueToFixed((item.min_group_price*item.promotion_rate) / 300000,2)}}</span>
+              </view>
+            </view>
+          </view>
+        </view>
+      </repeat>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/api/index'
+  import filter from  '../wxs/filter.wxs'
+
+  export default class Theme extends wepy.page {
+    config = {
+      navigationBarTitleText: '主题专场'
+    }
+    components = {
+    }
+
+    data = {
+      goods_info_list: [],
+      themeId: ''
+    }
+
+    wxs = {
+      filter: filter
+    }
+
+    computed = {
+    }
+
+    async getThemeGoodsList() {
+      let params = {
+          query: {
+            theme_id: this.themeId,
+            type: 'pdd.ddk.theme.goods.search'
+          },
+          showLoading: true
+        }
+      let json = await  api.getThemeGoodsList(params)
+      let realData = json.data.data
+      this.goods_info_list = [...this.goods_info_list, ...realData.theme_list_get_response.goods_list]
+      this.$apply()
+    }
+
+    methods = {
+      toDetail(e){
+        const goodsId = e.currentTarget.dataset.goodsid
+        wx.navigateTo({
+          url: 'detail?goodsId=' + goodsId
+        })
+      }
+    }
+
+    events = {
+
+    }
+
+    onLoad(params) {
+      this.themeId = params.themeId
+      this.getThemeGoodsList()
+    }
+  }
+</script>
+
+<style lang="less">
+.theme-container{
+  padding: 28rpx;
+  box-sizing: border-box;
+  .goods-items{
+    .item{
+      height: 284rpx;
+      display: flex;
+      margin-bottom: 26rpx;
+      position: relative;
+      &::after{
+        content: '';
+        display: block;
+        height: 2rpx;
+        width: 388rpx;
+        background-color: #F0F0F0;
+        position: absolute;
+        bottom: -13rpx;
+        right: 0;
+      }
+      .icon{
+        width: 284rpx;
+        border-radius: 10rpx;
+        overflow: hidden;
+        image{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .info{
+        flex: 1;
+        padding: 20rpx;
+        font-size: 28rpx;
+        color: #2F2F32;
+        position: relative;
+        box-sizing: border-box;
+        .top{
+          height: 142rpx;
+          .goods-origin-price{
+            color: #A9ACAF;
+            font-size: 24rpx;
+            margin-top: 20rpx;
+          }
+        }
+        .bottom{
+          position: absolute;
+          bottom: 12rpx;
+          display: flex;
+          width: 100%;
+          .goods-current-price{
+            color: #F13B50;
+            font-size: 22rpx;
+            font-weight: normal;
+            flex: 1;
+            line-height: 50rpx;
+            span{
+              font-weight: bolder;
+              font-size: 26rpx;
+            }
+          }
+          .promote{
+            font-size: 24rpx;
+            padding-right: 20rpx;
+            text-align: center;
+            &.pd-top{
+              padding-top: 25rpx;
+            }
+            span{
+              display: inline-block;
+              width: 140rpx;
+              border-radius: 8rpx;
+              border: 2rpx solid #F23B50;
+              color: #F23B50;
+              padding: 5rpx 10rpx;
+              box-sizing: border-box;
+              margin-bottom: 10rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</style>

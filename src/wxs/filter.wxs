@@ -1,0 +1,5 @@
+module.exports = {
+  valueToFixed: function (value, num) {
+      return Number(value).toFixed(num)
+  }
+}

@@ -1,0 +1,81 @@
+<template>
+  <view class="index-container">
+    <view class="theme">
+      <repeat for="{{theme_list}}" key="index">
+        <view class="item" @tap="toThemeList" data-themeId="{{item.id}}">
+          <image src="{{item.image_url}}" />
+        </view>
+      </repeat>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/api/index'
+
+  export default class ThemeList extends wepy.page {
+    config = {
+      navigationBarTitleText: '主题专场'
+    }
+    components = {
+    }
+
+    data = {
+      theme_list: []
+    }
+
+    computed = {
+    }
+
+    async themeList(){
+      let params = {
+          query: {
+            type: 'pdd.ddk.theme.list.get'
+          },
+          showLoading: true
+        }
+      let json = await  api.themeList(params)
+      let realData = json.data.data
+      this.theme_list = realData.theme_list_get_response.theme_list
+      this.$apply()
+    }
+
+    methods = {
+      toThemeList(e){
+        const themeid = e.currentTarget.dataset.themeid
+        wx.navigateTo({
+          url: 'theme_goods_list?themeId=' + themeid
+        })
+      }
+    }
+
+    events = {
+
+    }
+
+    onLoad() {
+      this.themeList()
+    }
+  }
+</script>
+
+<style lang="less">
+.index-container{
+  padding: 28rpx;
+  box-sizing: border-box;
+  .theme{
+    box-sizing: border-box;
+    .item{
+      height: 320rpx;
+      border-radius: 20rpx;
+      margin-bottom: 30rpx;
+      overflow: hidden;
+      image{
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+</style>

@@ -1,0 +1,265 @@
+<template>
+  <view class="index-container">
+    
+    <view class="operate">
+      <view class="search" @tap="toSearch">
+        <image src="../assets/imgs/index/search.png"/>
+        宅在家里收佣金
+      </view>
+      <!-- <scroll-view class="slide-bar" scroll-x="{{true}}">
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+        <view class="bar-item">推荐</view>
+      </scroll-view> -->
+    </view>
+    <view class="goods-items">
+      <repeat for="{{goods_info_list}}" key="index">
+        <view class="item" v-for="item in 5" @tap="toDetail" data-goodsId="{{item.goods_id}}">
+          <view class="icon">
+            <image src="{{item.goods_image_url}}"/>
+          </view>
+          <view class="info">
+            <view class="top">
+              <view class="goods-name">{{item.goods_name}}</view>
+            </view>
+            <view class="bottom">
+              <view class="goods-current-price">
+                <view><span>¥{{item.min_normal_price / 100}}</span>（单买价）</view>
+                <view><span>¥{{item.min_group_price / 100}}</span>（拼团价）</view>
+              </view>
+              <view class="promote" wx:if="{{item.coupon_discount > 0}}">
+                <view>
+                  <span>优惠券¥{{item.coupon_discount / 100}}</span>
+                </view>
+                <view>
+                  <span>佣金¥{{filter.valueToFixed((item.min_group_price*item.promotion_rate) / 300000,2)}}</span>
+                </view>
+              </view>
+              <view class="promote pd-top" wx:else>
+                <span>佣金¥{{filter.valueToFixed((item.min_group_price*item.promotion_rate) / 300000,2)}}</span>
+              </view>
+            </view>
+          </view>
+        </view>
+      </repeat>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/api/index'
+  import UUID from '@/utils/UUID'
+  import filter from  '../wxs/filter.wxs'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '总有你要的低价'
+    }
+    components = {
+    }
+
+    data = {
+      goods_info_list: [],
+      page: 1,
+      uuid: '',
+      theme_list: []
+    }
+
+    wxs = {
+      filter: filter
+    }
+
+    computed = {
+    }
+
+    async getGoodsList() {
+      let params = {
+          query: {
+            limit: 30,
+            offset: (this.page - 1) * 30,
+            type: 'pdd.ddk.top.goods.list.query'
+          },
+          showLoading: true
+        }
+      let json = await  api.getGoodsList(params)
+      let realData = json.data.data
+      this.goods_info_list = [...this.goods_info_list, ...realData.top_goods_list_get_response.list]
+      this.$apply()
+    }
+
+    methods = {
+      valueToFixed(value){
+        return Number(value).toFixed(2)
+      },
+      toDetail(e){
+        const goodsId = e.currentTarget.dataset.goodsid
+        wx.navigateTo({
+          url: 'detail?goodsId=' + goodsId
+        })
+      },
+      toThemeList(e){
+        const themeid = e.currentTarget.dataset.themeid
+        wx.navigateTo({
+          url: 'theme_goods_list?themeId=' + themeid
+        })
+      },
+      toSearch(){
+        wx.navigateTo({
+          url: 'search'
+        })
+      }
+    }
+
+    events = {
+
+    }
+
+    onLoad() {
+      this.getGoodsList()
+    }
+
+    onReachBottom(){
+      this.page++
+      this.getGoodsList()
+    }
+  }
+</script>
+
+<style lang="less">
+.index-container{
+  padding: 28rpx;
+  box-sizing: border-box;
+  .operate{
+    background-color: #fff;
+    margin-bottom: 28rpx;
+    .search{
+      width: 100%;
+      height: 60rpx;
+      line-height: 60rpx;
+      background-color: #F6F6F6;
+      color: #7A7D8E;
+      border-radius: 30rpx;
+      margin-bottom: 16rpx;
+      padding: 0 20rpx;
+      font-size: 24rpx;
+      box-sizing: border-box;
+      image{
+        height: 40rpx;
+        width: 40rpx;
+        margin-top: 10rpx;
+        vertical-align: top;
+      }
+    }
+    .slide-bar{
+      width: 1000rpx;
+      height: 60rpx;
+      overflow-x: auto;
+      width: auto;
+      .bar-item{
+        float: left;
+        margin-right: 30rpx;
+        border-bottom: 6rpx solid #F23B50;
+      }
+    }
+  }
+  .goods-items{
+    .item{
+      height: 284rpx;
+      display: flex;
+      margin-bottom: 26rpx;
+      position: relative;
+      &::after{
+        content: '';
+        display: block;
+        height: 2rpx;
+        width: 388rpx;
+        background-color: #F0F0F0;
+        position: absolute;
+        bottom: -13rpx;
+        right: 0;
+      }
+      .icon{
+        width: 284rpx;
+        border-radius: 10rpx;
+        overflow: hidden;
+        image{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .info{
+        flex: 1;
+        padding: 20rpx;
+        font-size: 28rpx;
+        color: #2F2F32;
+        position: relative;
+        box-sizing: border-box;
+        .top{
+          height: 142rpx;
+          .goods-origin-price{
+            color: #A9ACAF;
+            font-size: 24rpx;
+            margin-top: 20rpx;
+          }
+        }
+        .bottom{
+          position: absolute;
+          bottom: 12rpx;
+          display: flex;
+          width: 100%;
+          .goods-current-price{
+            color: #F13B50;
+            font-size: 22rpx;
+            font-weight: normal;
+            flex: 1;
+            line-height: 50rpx;
+            span{
+              font-weight: bolder;
+              font-size: 26rpx;
+            }
+          }
+          .promote{
+            font-size: 24rpx;
+            padding-right: 20rpx;
+            text-align: center;
+            &.pd-top{
+              padding-top: 25rpx;
+            }
+            span{
+              display: inline-block;
+              width: 140rpx;
+              border-radius: 8rpx;
+              border: 2rpx solid #F23B50;
+              color: #F23B50;
+              padding: 5rpx 10rpx;
+              box-sizing: border-box;
+              margin-bottom: 10rpx;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .theme{
+    padding: 30rpx;
+    box-sizing: border-box;
+    .item{
+      height: 300rpx;
+      border-radius: 20rpx;
+      margin-bottom: 30rpx;
+      overflow: hidden;
+      image{
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+</style>

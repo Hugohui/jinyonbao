@@ -1,0 +1,87 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/detail',
+      'pages/theme_goods_list',
+      'pages/theme_list',
+      'pages/mine',
+      'pages/search'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#F23B50',
+      navigationBarTitleText: 'WeChat',
+      navigationBarTextStyle: 'white'
+    },
+    navigateToMiniProgramAppIdList: [
+      'wx32540bd863b27570'
+    ],
+    tabBar: {
+      color: "#000",
+      selectedColor: "#F23B50",
+      list: [
+        {
+          pagePath: "pages/index",
+          text: "精品爆款",
+          iconPath: './assets/imgs/tabbar/home.png',
+          selectedIconPath: './assets/imgs/tabbar/home-selected.png'
+        },
+        {
+          pagePath: "pages/theme_list",
+          text: "主题购物",
+          iconPath: './assets/imgs/tabbar/theme.png',
+          selectedIconPath: './assets/imgs/tabbar/theme-selected.png'
+        },
+        {
+          pagePath: "pages/mine",
+          text: "我的",
+          iconPath: './assets/imgs/tabbar/mine.png',
+          selectedIconPath: './assets/imgs/tabbar/mine-selected.png'
+        }
+      ]
+    },
+  }
+
+  globalData = {
+    userInfo: null
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+  }
+
+  onLaunch() {
+  }
+
+  getUserInfo(cb) {
+    const that = this
+    if (this.globalData.userInfo) {
+      return this.globalData.userInfo
+    }
+    wepy.getUserInfo({
+      success (res) {
+        that.globalData.userInfo = res.userInfo
+        cb && cb(res.userInfo)
+      }
+    })
+  }
+}
+</script>

@@ -1,0 +1,178 @@
+<template>
+  <view class="mine-container">
+    <view class="info-wrap">
+      <view class="info">
+        <view class="user-info">
+          <view class="header">
+            <open-data type="userAvatarUrl"></open-data>
+          </view>
+          <view class="name">
+            <view>
+              <open-data type="userNickName"></open-data>
+            </view>
+            <view class="user-id" wx:if="{{userInfo._id}}">
+              ID: {{userInfo._id}}
+            </view>
+            <button class="user-id login" wx:else open-type="getUserInfo" bindgetuserinfo="getUserInfo">点击登录</button>
+            <view class="tip-msg" wx:if="{{!userInfo._id}}">登录用户才能获得佣金</view>
+          </view>
+        </view>
+        <view class="cash">
+          <view class="promote-cash">
+            <span>¥</span>0
+          </view>
+          <view class="desc">推广佣金</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/api/index'
+  import login from "@/utils/login"
+
+  export default class Mine extends wepy.page {
+    config = {
+      navigationBarTitleText: '个人中心'
+    }
+    components = {
+    }
+
+    data = {
+      theme_list: [],
+      userInfo: {}
+    }
+
+    computed = {
+    }
+
+    methods = {
+      getUserInfo(e){
+        if(e.detail.userInfo){
+          this.generatePid()
+        }
+      }
+    }
+
+    async generatePid(){
+      let params = {
+          query: {
+            number: 1,
+            type: 'pdd.ddk.goods.pid.generate'
+          }
+        }
+      let json = await  api.generatePid(params)
+      let pid = json.data.data.p_id_generate_response.p_id_list[0].p_id
+      this.userLogin({pid: pid, showLoading: true})
+    }
+
+    // 登录
+    userLogin(params = {}){
+      login.Login(params, (res)=>{
+        this.userInfo = res
+        this.$apply()
+      }, ()=>{
+      })
+    }
+
+    events = {
+
+    }
+
+    onLoad() {
+      this.userLogin()
+    }
+  }
+</script>
+
+<style lang="less">
+.mine-container{
+  .info-wrap{
+    height: 160rpx;
+    background:linear-gradient(90deg,rgba(247,95,72,1) 0%,rgba(245,75,105,1) 100%);
+    border-radius: 0 0 60rpx 60rpx;
+    position: relative;
+    .info{
+      position: absolute;
+      top: 70rpx;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 660rpx;
+      background-color: #fff;
+      box-shadow:0px 2rpx 12rpx 0 rgba(0,0,0,0.08);
+      border-radius: 20rpx;
+      display: flex;
+      padding: 30rpx;
+      box-sizing: border-box;
+      .user-info{
+        flex: 1;
+        display: flex;
+        .header{
+          width: 100rpx;
+          height: 100rpx;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+        .name{
+          padding-left: 30rpx;
+          box-sizing: border-box;
+          flex: 1;
+          font-weight: bolder;
+          line-height: 50rpx;
+          position: relative;
+          .tip-msg{
+            position: absolute;
+            bottom: -30rpx;
+            left: 30rpx;
+            color: #F23B50;
+            font-size: 20rpx;
+          }
+          .user-id{
+            color: #666;
+            font-size: 28rpx;
+            font-weight: normal;
+            &.login{
+              height: 50rpx;
+              line-height: 50rpx;
+              font-size: 28rpx;
+              padding: 0;
+              border:none;
+              background-color: #fff;
+              color: #666;
+              text-align: left;
+              text-decoration: underline;
+              position: relative;
+              overflow: auto;
+              &::after{
+                border: none;
+              }
+            }
+          }
+        }
+      }
+      .cash{
+        width: 260rpx;
+        text-align: center;
+        color: #F23B50;
+        font-size: 40rpx;
+        font-weight: bolder;
+        line-height: 50rpx;
+        .promote-cash{
+          span{
+            font-size: 30rpx;
+            margin-right: 10rpx;
+            vertical-align: middle;
+          }
+        }
+        .desc{
+          color: #666;
+          font-size: 28rpx;
+          font-weight: normal;
+        }
+      }
+    }
+  }
+}
+</style>
