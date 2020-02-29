@@ -49,6 +49,18 @@ export default class extends wepy.app {
           selectedIconPath: './assets/imgs/tabbar/theme-selected.png'
         },
         {
+          pagePath: "pages/theme_list",
+          text: "企业内购",
+          iconPath: './assets/imgs/tabbar/shop.png',
+          selectedIconPath: './assets/imgs/tabbar/shop-selected.png'
+        },
+        {
+          pagePath: "pages/theme_list",
+          text: "任务赚佣",
+          iconPath: './assets/imgs/tabbar/task.png',
+          selectedIconPath: './assets/imgs/tabbar/task-selected.png'
+        },
+        {
           pagePath: "pages/mine",
           text: "我的",
           iconPath: './assets/imgs/tabbar/mine.png',
