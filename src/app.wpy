@@ -13,6 +13,8 @@
 import wepy from 'wepy'
 import 'wepy-async-function'
 
+var tdweapp = require('./track/tdweapp.js');
+
 export default class extends wepy.app {
   config = {
     pages: [
