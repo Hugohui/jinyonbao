@@ -1,4 +1,3 @@
-import config from '@/config/config'
 exports.config = {
   appkey: 'CA09F709173E4327BFFF4501AC99989E',
   appName: '进佣宝',
